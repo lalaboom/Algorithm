@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>推荐系统与深度学习笔记（一）</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p><img src="https://img-blog.csdnimg.cn/20190819230818482.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="300"></p>
+<hr>
+<p>第一章是一些基础的科普和发展历史，粗粗一看略过。</p>
+<h2><a id="_7"></a>二，神经网络基础</h2>
+<h4><a id="21_8"></a>2.1神经网络基本结构</h4>
+<p><img src="https://img-blog.csdnimg.cn/20190819223722523.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_5,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="300"><br>
+最左边的层叫作输入层，该层负责接收输入数据；最右边的层叫作输出层，我们可<br>
+以从该层获取神经网络输出数据。输入层和输出层之间的层叫作隐藏层。</p>
+<p>其基本的组成单元是神经元，也叫做感知机。<br>
+<img src="https://img-blog.csdnimg.cn/20190819223859348.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="400"><br>
+在神经网络中，有了样本的输入和权重参数，我们就可以通过<strong>正向传播求得输出值</strong>。<br>
+然而，输出值一般会与预测值差异很大，这是因为网络层的权重是我们随机初始化的，<br>
+此时的网络还不具备预测分类功能。为了校正网络的权重，这时候就要利用神经网络反<br>
+向传播的算法，修正权重参数，使输出值逼近目标值。类似机器学习的优化算法，我们<br>
+通常采用反向传播的方法来更新梯度，从而达到最小化损失函数值的目的。</p>
+<p>假设每个类别服从二项式分布，那么每个样本的目标函数写成<br>
+<img src="https://img-blog.csdnimg.cn/20190819224133718.png" alt="在这里插入图片描述"><br>
+<img src="https://img-blog.csdnimg.cn/20190819224200209.png#pic_center" alt="在这里插入图片描述" width="400"><br>
+假定我们有基于全连接的多层神经网络，每层的输出来用sigmoid 函数激活，那么<br>
+可以得到下面的递推公式：</p>
+<p><img src="https://img-blog.csdnimg.cn/20190819224219519.png#pic_center" alt="在这里插入图片描述" width="300"><br>
+如果对低层的网络参数求导，比如对第l 1 层的参数吟旷求导，通常采用下面的递归<br>
+求导公式<br>
+<img src="https://img-blog.csdnimg.cn/20190819224330791.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="400"><br>
+反复采用此式，我们可以对每个参数求导，并更新所有的网络参数</p>
+<h4><a id="22__33"></a>2.2 优化算法</h4>
+<h5><a id="221_34"></a>2.2.1初始参数</h5>
+<p>深度神经网络它是一种<strong>选代更新算法</strong>，需要在迭代更新前对每个参数进行初始化。不过初始化的选择在高维非凸优化问题中是非常重要的。如果初始化参数太小，在网络训练过程中前馈和反馈的信号可能会丢失，导致神经元之间没有区分。如果参数过大，可能会导致梯度失控爆炸等问题，从而影响模型的收敛性。所以，选择合适的方法初始化网络参数是非常有必要的</p>
+<p>初始化网络参数有以下三种：</p>
+<ul>
+<li>高斯分布初始化</li>
+<li>均匀分布初始化</li>
+<li>Xavier初始化</li>
+</ul>
+<h5><a id="222__44"></a>2.2.2 学习速率的选择</h5>
+<p>学习率太小导致<strong>收敛缓慢</strong>，而学习率太大会<strong>阻碍收敛并导致损失函数在最小值附近波动</strong>或者发散。而<strong>模拟退火</strong>算法可以以一定的概率来接受一个比当前解要差的解，因此有可能会跳出这个局部的最优解，达到全局的最优解。因此，深度网络通常采用模拟退火的方法在训练期间动态调整学习率。模拟退火算法的学习率又包括反向衰减学习率和指数衰减学习率，具体方法有：</p>
+<ul>
+<li>反向衰减学习率。假设初始化学习率为咐，γ是衰减系数，t 是迭代次数，反向衰减<br>
+可以定义为<br>
+<img src="https://img-blog.csdnimg.cn/20190819225023945.png#pic_center" alt="在这里插入图片描述" width="110"></li>
+<li>指数衰减学习率类似地，指数衰减可以定义成<br>
+<img src="https://img-blog.csdnimg.cn/20190819225045888.png#pic_center" alt="在这里插入图片描述" width="120"></li>
+</ul>
+<blockquote>
+<p>固定衰减的模拟退火方法不能直接泛化到多个数据集上，我们也不希望采用相同 的频率和步长来更新所有的网络参数，所以自适应调整学习率Adadelta被提出，这些 方法给每个参数设置不同的自适应学习率。</p>
+</blockquote>
+<ul>
+<li>动量方法：该方法采用<strong>累计梯度</strong>来替代当前时刻的梯度。直观上讲，动量方法类似<br>
+把球推下山，球在下坡时积累动力，在途中速度变得越来越快。如果某些参数在连续时<br>
+间内梯度方向不同，那么动量会变小。相反，如果在连续时间内梯度方向一致，那么动<br>
+量会增大。因此，动量法可以<strong>更快速地收敛并减少目标函数的震荡</strong>。<br>
+<img src="https://img-blog.csdnimg.cn/2019081922524313.png#pic_center" alt="在这里插入图片描述" width="300"><br>
+<img src="https://img-blog.csdnimg.cn/20190819225300348.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li>RMSproop 可以自适应调整每个参数的学习率。此外，该方法也可以克服学习率过早衰减等问题 <img src="https://img-blog.csdnimg.cn/20190819225338501.png" alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/20190819225402292.png" alt="在这里插入图片描述"></li>
+<li>自适应矩估计</li>
+</ul>
+<h5><a id="23_65"></a>2.3卷积网络</h5>
+<p>卷积网络和普通神经网络非常相似：它们都由一系列神经元组成。<strong>但不同的是，卷<br>
+积神经网络受到视觉系统的启发，会考虑输入的空间结构</strong>。比如，第l+ 1 层神经元和l<br>
+层的局部区域相连接，该区域（也被称为局部感受野〉执行卷积操作和非线性变换生成<br>
+第l+ l 层神经元。</p>
+<p>卷积网络通过损失函数，比如交叉；脑来优化网络参数。此外，与标准神经网络相比，CNN 具有更少的参数，从而可以有效地训练非常深的架构（通常超过5 层，这对于全连接的网络来说是不可行的）。通常，卷积神经网络的图层可以分成三种类型：卷积层、池化层和全连接层。我们通过堆叠这些图层构成完整的卷积网络架构。</p>
+<h6><a id="231_73"></a>2.3.1卷积层</h6>
+<p>卷积层是卷积神经网络的核心图层，用来提取<strong>局部区域</strong>的特征。<br>
+通常，卷积层有多个不同的卷积核，局部区域和这些卷积核经过卷积运算生成不同的特征。其中，不同的卷积核可以看成不同的特征提取器。<br>
+<img src="https://img-blog.csdnimg.cn/20190820220112273.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="450"></p>
+<h5><a id="232__77"></a>2.3.2 池化层</h5>
+<p>池化层，也可称为子采样层（subsampling layer ），**它通常被用在连续的卷积层之间，<br>
+类似于特征选择的功能，其主要作用是减少特征和参数数量，减少网络的计算量，从而<br>
+控制过拟合。**此外，池化层通常在每个通道上独立执行，我们常常能见到2 × 2 大小（过<br>
+滤器）的池化层，每个通道沿着宽度和高度执行下来样，放弃75% 的神经元。</p>
+<ul>
+<li><strong>最大池化</strong>操作在每个通道的η× m 区域内计算所有神经元的<strong>最大值</strong>：<br>
+<img src="https://img-blog.csdnimg.cn/20190820220548181.png#pic_center" alt="在这里插入图片描述" width="350"></li>
+<li><strong>平均池化</strong> 该操作在每个通道的n× m 区域内计算所有神经元的<strong>平均值</strong></li>
+<li><img src="https://img-blog.csdnimg.cn/20190820220645684.png#pic_center" alt="在这里插入图片描述" width="350"><br>
+<img src="https://img-blog.csdnimg.cn/20190820220745370.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="550"></li>
+</ul>
+<h5><a id="233__88"></a>2.3.3 常见的网络结构</h5>
+<ul>
+<li>LeNet-5 经典卷积网络，由多个卷积层，池化层和全连接层组成：<br>
+<img src="https://img-blog.csdnimg.cn/20190820230632254.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li>AlexNet<br>
+标准的神经元激活函数是双曲正切f(x) = tanh(x）或者sigmoidf(x) = 1/(1 + exp(-x））。在AlexNet 里，激活函数被替换成ReLU f(x) = max(O, x ）。其次，Al exNet 采用数据增强技术来增加标签数据集，比如图像平移、水平翻转或者改变RGB 通道的密度。此外，它还引入dropout 技术，这种方法让每个神经元有一定概率不会参与正向和反向传播。直观地说，它对网络结构进行采样，减少了神经元的复合性，对特定神经元有更多依赖。<br>
+<img src="https://img-blog.csdnimg.cn/20190820230923526.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+</ul>
+<h3><a id="24__94"></a>2.4 循环网络</h3>
+<p>序列数据在很多领域都很常见，不仅应用于自然语言处理、语音识别、计算生物学等专业领域，还应用于股票价格预测、天气预测这些常见的预测模型中。现在流行的序列模型非常多。对于最简单的序列模型，只需要预测前项或者后项，不需要隐藏状态。例如自回归模型，该模型在序列中基于历史的许多项做加权平均，并试图预测下一项，没有隐藏状态。</p>
+<p>通常来说，序列模型包含隐藏状态是非常自然的，隐藏状态保存序列在每个时刻的动态性，所以它会根据不同时刻的动态变化预测下一个结果。<strong>循环神经网络就是序列模型的一种变体</strong>。在传统神经网络中，我们假设所有的输入和输出相互独立，但这显然不符合数据特点。</p>
+<p>RNN 有循环性，因为序列的每个时刻都执行相同的任务，每个时刻的输出依赖于当前时刻的输入和上一时刻的隐藏状态。<br>
+<img src="https://img-blog.csdnimg.cn/20190821190139473.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h5><a id="241__101"></a>2.4.1 时序反向传播算法</h5>
+<p>推导过程略。书上说得太模糊了。这里只记两个知识点：</p>
+<ul>
+<li>梯度爆炸, 梯度消失<br>
+<img src="https://img-blog.csdnimg.cn/20190821190450283.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+</ul>
+<h5><a id="242__107"></a>2.4.2 长短时记忆网络</h5>
+<p>长短期记忆网络是循环神经网络的一个变体，它扩展了RNNs 模型，主要的贡献是引入了记忆单元和门机制在神经网络内部传播信号，同时有效解决了梯度消失和梯度爆炸问题。<br>
+<img src="https://img-blog.csdnimg.cn/2019082119065246.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+参数更新方式：<br>
+<img src="https://img-blog.csdnimg.cn/20190821190726637.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RlbmdjaGVuZ3R1NDEzOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h4><a id="25__112"></a>2.5 生成对抗基础</h4>
+<p>图像相关。</p>
+</div>
+</body>
+
+</html>
